@@ -1,17 +1,21 @@
+from datetime import datetime
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
+from flask_moment import Moment
 
 # Initialize the main flask application object
 app = Flask(__name__)
 
 # Initialize flask extensions
 bootstrap = Bootstrap(app)
+moment = Moment(app)
 
 
 # Define a route that maps '/' -> index
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html',
+                           current_time=datetime.utcnow())
 
 
 # Define a route that maps '/user/<name>' -> user
