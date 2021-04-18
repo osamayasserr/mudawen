@@ -133,3 +133,6 @@ dmypy.json
 
 # SQLite databases
 *.sqlite
+
+# pylint
+.pylintrc
