@@ -1,0 +1,13 @@
+Dear {{ user.username }},
+
+To confirm your new email please click on the following link:
+
+{{ url_for('auth.request_email_change', token=token, _external=True) }}
+
+If you have not requested to change your email simply ignore this message.
+
+Sincerely,
+
+Mudawen Team
+
+Note: replies to this email address are not monitored.

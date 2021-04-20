@@ -9,6 +9,7 @@ def send_async_email(app, msg):
         mail.send(msg)
 
 
+# Sends asyncronous mails with threading
 def send_email(to, subject, template, **kwargs):
     app = current_app._get_current_object()
     msg = Message(app.config['MUDAWEN_MAIL_SUBJECT_PREFIX'] + ' ' + subject,

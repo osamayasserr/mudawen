@@ -3,12 +3,17 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
+from flask_login import LoginManager
 from config import config
 
 db = SQLAlchemy()
 mail = Mail()
 moment = Moment()
 bootstrap = Bootstrap()
+
+# Initializes flask-login
+login_manager = LoginManager()
+login_manager.login_view = 'auth.login'
 
 
 # Application factory function
@@ -23,9 +28,14 @@ def create_app(environment):
     db.init_app(app)
     moment.init_app(app)
     mail.init_app(app)
+    login_manager.init_app(app)
 
-    # Registers Blueprints
+    # Registers the main blueprint
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+
+    # Registers the auth blueprint
+    from .auth import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
     return app
