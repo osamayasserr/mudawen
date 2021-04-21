@@ -1,4 +1,3 @@
-import functools
 from . import auth
 from .forms import (LoginForm, RegistrationForm, ChangePasswordForm,
                     RequestPasswordResetForm, ResetPasswordForm, ChangeEmailForm)
@@ -7,17 +6,7 @@ from .. import db
 from ..email import send_email
 from flask import render_template, request, flash, url_for, redirect
 from flask_login import login_user, logout_user, login_required, current_user
-
-
-# Decorates view functions that require account confirmation
-def requires_confirmation(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if not current_user.confirmed:
-            flash('Please confirm your account.')
-            return redirect(url_for('auth.unconfirmed'))
-        return func(*args, **kwargs)
-    return wrapper
+from ..decorators import requires_confirmation
 
 
 # Redirects the user to the unconfirmed page

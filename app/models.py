@@ -1,8 +1,16 @@
 from . import db, login_manager
 from flask import current_app
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+
+
+class Permission:
+    FOLLOW = 1
+    COMMENT = 2
+    WRITE = 4
+    MODERATE = 8
+    ADMIN = 16
 
 
 # Role model
@@ -10,7 +18,49 @@ class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
+    default = db.Column(db.Boolean, default=False, index=True)
+    permissions = db.Column(db.Integer)
     users = db.relationship('User', backref='role', lazy='dynamic')
+
+    def __init__(self, **kwargs):
+        super(Role, self).__init__(**kwargs)
+        if self.permissions is None:
+            self.permissions = 0
+
+    def add_permission(self, permission):
+        if not self.has_permission(permission):
+            self.permissions += permission
+
+    def remove_permission(self, permission):
+        if self.has_permission(permission):
+            self.permissions -= permission
+
+    def reset_permission(self):
+        self.permissions = 0
+
+    def has_permission(self, permission):
+        return self.permissions & permission == permission
+
+    @staticmethod
+    def insert_roles():
+        roles = {
+            'User': [Permission.FOLLOW, Permission.COMMENT, Permission.WRITE],
+            'Moderator': [Permission.FOLLOW, Permission.COMMENT,
+                          Permission.WRITE, Permission.MODERATE],
+            'Administrator': [Permission.FOLLOW, Permission.COMMENT, Permission.WRITE,
+                              Permission.MODERATE, Permission.ADMIN]
+        }
+        default_role = 'User'
+        for role in roles:
+            r = Role.query.filter_by(name=role).first()
+            if not r:
+                r = Role(name=role)
+            r.reset_permission()
+            for permission in roles[role]:
+                r.add_permission(permission)
+            r.default = (r.name == default_role)
+            db.session.add(r)
+        db.session.commit()
 
     def __repr__(self):
         return f'<Role {self.name}>'
@@ -26,9 +76,17 @@ class User(UserMixin, db.Model):
     confirmed = db.Column(db.Boolean, default=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
 
+    def __init__(self, **kwargs):
+        super(User, self).__init__(**kwargs)
+        if self.role is None:
+            if self.email == current_app.config['MUDAWEN_ADMIN']:
+                self.role = Role.query.filter_by(name='Administrator').first()
+            if self.role is None:
+                self.role = Role.query.filter_by(default=True).first()
+
     @property
     def password(self):
-        raise AttributeError('password is not readable')
+        raise AttributeError('password attribute is not readable')
 
     @password.setter
     def password(self, password):
@@ -90,8 +148,25 @@ class User(UserMixin, db.Model):
         db.session.add(self)
         return True
 
+    def can(self, permission):
+        return self.role is not None and self.role.has_permission(permission)
+
+    def is_administrator(self):
+        return self.can(Permission.ADMIN)
+
     def __repr__(self):
         return f'<User {self.username}>'
+
+
+class AnonymousUser(AnonymousUserMixin):
+    def can(self, permission):
+        return False
+
+    def is_administrator(self):
+        return False
+
+
+login_manager.anonymous_user = AnonymousUser
 
 
 # flask-login's loader function
