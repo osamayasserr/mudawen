@@ -12,11 +12,12 @@ from ..decorators import requires_confirmation
 # Redirects the user to the unconfirmed page
 @auth.before_app_request
 def before_request():
-    if current_user.is_authenticated \
-            and not current_user.confirmed \
-            and request.blueprint != 'auth' \
-            and request.endpoint != 'static':
-        return redirect(url_for('auth.unconfirmed'))
+    if current_user.is_authenticated:
+        current_user.ping()
+        if not current_user.confirmed \
+                and request.blueprint != 'auth' \
+                and request.endpoint != 'static':
+            return redirect(url_for('auth.unconfirmed'))
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -52,7 +53,7 @@ def register():
         token = user.generate_confirmation_token()
         send_email(user.email, 'Email Confirmation',
                    'auth/email/confirm', user=user, token=token)
-        flash('A confirmation email has been sent to you by email.')
+        flash('A confirmation email has been sent to you.')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)
 
