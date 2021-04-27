@@ -1,15 +1,34 @@
 {% extends "layout.html" %}
 {% import "bootstrap/wtf.html" as wtf%}
+{% import "_macros.html" as macros %}
 
 {% block title%}Mudawen{% endblock %}
 
 {% block page_content %}
-  <div class="page-header">
-    <h1>Hello, 
+<div class="page-header">
+  <h1>
+    Hello, 
     {% if current_user.is_authenticated %}
-      {{ current_user.username }}
+    {{ current_user.username }}
     {% else %}
-      Stranger
-    {% endif %}!</h1>
-  </div>
+    Stranger
+    {% endif %}!
+  </h1>
+</div>
+<div>
+  {% if current_user.can(Permission.WRITE) %}
+  {{ wtf.quick_form(form) }}
+  {% endif %}
+</div>
+{% include "_posts.html" %}
+{% if pagination %}
+<div class="pagination">
+  {{ macros.pagination_widget(pagination, 'main.index') }}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
 {% endblock %}

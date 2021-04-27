@@ -17,6 +17,7 @@ class Config:
     MUDAWEN_MAIL_SUBJECT_PREFIX = '[Mudawen]'
     MUDAWEN_MAIL_SENDER = 'Mudawen Admin <mudawenapp@gmail.com>'
     MUDAWEN_ADMIN = os.getenv('MUDAWEN_ADMIN')
+    POSTS_PER_PAGE = 10
 
     @staticmethod
     def init_app(app):
