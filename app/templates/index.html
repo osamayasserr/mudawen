@@ -20,7 +20,16 @@
   {{ wtf.quick_form(form) }}
   {% endif %}
 </div>
-{% include "_posts.html" %}
+<br>
+<div class="post-tabs">
+  <ul class="nav nav-tabs">
+      <li{% if not show_following %} class="active"{% endif %}><a href="{{ url_for('.show_all') }}">All</a></li>
+      {% if current_user.is_authenticated %}
+      <li{% if show_following %} class="active"{% endif %}><a href="{{ url_for('.show_following') }}">Followings</a></li>
+      {% endif %}
+  </ul>
+  {% include '_posts.html' %}
+</div>
 {% if pagination %}
 <div class="pagination">
   {{ macros.pagination_widget(pagination, 'main.index') }}
