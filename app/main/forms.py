@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField, SelectField
 from wtforms.validators import DataRequired, Length, Email, Regexp
-from wtforms import ValidationError
+from wtforms import ValidationError, Label
 from flask_pagedown.fields import PageDownField
 from flask_login import current_user
 from ..models import Role, User
@@ -57,3 +57,12 @@ class EditProfileAdminForm(FlaskForm):
 class PostForm(FlaskForm):
     body = PageDownField('What\'s on your mind?', validators=[DataRequired()])
     submit = SubmitField('Post')
+
+
+class CommentForm(FlaskForm):
+    body = StringField('', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+    def __init__(self, post, *args, **kwargs):
+        super(CommentForm, self).__init__(*args, **kwargs)
+        self.body.label = Label(self.body.id, f'Reply to {post.author.username}\'s post')

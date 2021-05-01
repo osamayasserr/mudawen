@@ -23,9 +23,9 @@
 <br>
 <div class="post-tabs">
   <ul class="nav nav-tabs">
-      <li{% if not show_following %} class="active"{% endif %}><a href="{{ url_for('.show_all') }}">All</a></li>
+      <li {% if not show_following %} class="active"{% endif %}><a href="{{ url_for('main.show_all') }}">All</a></li>
       {% if current_user.is_authenticated %}
-      <li{% if show_following %} class="active"{% endif %}><a href="{{ url_for('.show_following') }}">Followings</a></li>
+      <li {% if show_following %} class="active"{% endif %}><a href="{{ url_for('main.show_following') }}">Following</a></li>
       {% endif %}
   </ul>
   {% include '_posts.html' %}

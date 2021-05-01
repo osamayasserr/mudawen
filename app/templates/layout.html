@@ -1,5 +1,7 @@
 {% extends "bootstrap/base.html" %}
+
 {% block title %}Mudawen{% endblock %} 
+
 {% block head %}
 {{ super() }}
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}"
@@ -8,17 +10,16 @@ type="image/x-icon">
 type="image/x-icon">
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 {% endblock %}
+
 {%block navbar %}
-<nav class="navbar navbar-inverse">
+<nav class="navbar navbar-inverse" role="navigation">
   <div class="container">
-    <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
       <button
         type="button"
-        class="navbar-toggle collapsed"
+        class="navbar-toggle"
         data-toggle="collapse"
-        data-target="#bs-example-navbar-collapse-1"
-        aria-expanded="false"
+        data-target=".navbar-collapse"
       >
         <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
@@ -27,8 +28,7 @@ type="image/x-icon">
       </button>
       <a class="navbar-brand" href="{{ url_for('main.index') }}">Mudawen</a>
     </div>
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse">
+    <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li><a href="{{ url_for('main.index') }}">Home</a></li>
         {% if current_user.is_authenticated %}
@@ -36,6 +36,9 @@ type="image/x-icon">
         {% endif %}
       </ul>
       <ul class="nav navbar-nav navbar-right">
+        {% if current_user.can(Permission.MODERATE) %}
+        <li><a href="{{ url_for('main.moderate') }}">Moderate Comments</a></li>
+        {% endif %}
         {% if current_user.is_authenticated %}
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -53,11 +56,10 @@ type="image/x-icon">
         {% endif %}
       </ul>
     </div>
-    <!-- /.navbar-collapse -->
   </div>
-  <!-- /.container-fluid -->
 </nav>
 {% endblock %}
+
 {% block content %}
 <div class="container">
     {% for message in get_flashed_messages() %}
