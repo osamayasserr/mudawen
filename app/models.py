@@ -341,6 +341,7 @@ class User(UserMixin, db.Model):
             'last_seen': self.last_seen,
             'following_posts_url': url_for('api.get_user_following_posts',
                                            id=self.id, _external=True),
+            'posts_url': url_for('api.get_user_posts', id=self.id, _external=True),
             'post_count': self.posts.count()
         }
 
