@@ -53,10 +53,10 @@ def edit_post(id):
 
 @api.route('/users/<int:id>/posts/')
 def get_user_posts(id):
-    user = User.quer.get_or_404(id)
+    user = User.query.get_or_404(id)
     page = request.args.get('page', 1, type=int)
     pagination = user.posts.order_by(Post.timestamp.desc()).paginate(
-        page, per_page=current_app.config['MUDAWEN_PER_PAGE'], error_out=False)
+        page, per_page=current_app.config['MUDAWEN_POSTS_PER_PAGE'], error_out=False)
     posts = pagination.items
     return jsonify({
         'page': page,
